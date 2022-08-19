@@ -2,19 +2,19 @@
 
 ## 简介
 
-HeRang，由 `Rust` 编写的下一代高性能脚本语言，适用于**Cyber 空间**。
+HeRang，使用 `Rust` 编写的下一代高性能脚本语言，适用于 **Cyber 空间**。
 
 灵感来源：[helang](https://github.com/kifuan/helang)。
 
-你可以直接运行 `herang` 与**Saint He**面对面对话。
+你可以直接运行 `herang` 与 **Saint He** 面对面对话。
 
-也可以运行 `herang --path path_to_her` 运行 `her` 文件。
+也可以运行 `herang --path <path_to_her>` 运行 `her` 文件。
 
 ## 语法
 
 `herang` 的标识符只能为大小写字母组成的字符串。
 
-**Saint He**曾说，一切类型均为 `u8`。
+**Saint He** 曾说，一切类型均为 `u8`。
 
 ```code
 a = 1 | 2;
@@ -55,14 +55,14 @@ a[0] = 4 | 2;
 print(a);
 ```
 
-**Saint He**身处**Cyber 空间**，因此我们可以声明一个 `cyber u8`。
+**Saint He** 身处 **Cyber 空间**，因此我们可以声明一个 `cyber u8`。
 
 ```code
 a = cyber(5);
 print(a);
 ```
 
-**Saint He**曾用 ¥ 进行招聘，我们也可以用 `$` 来招聘。
+**Saint He** 曾用 ¥ 进行招聘，我们也可以用 `$` 来招聘。
 
 `$` 声明结尾有分号，返回值为最后一个语句的值。
 
@@ -71,7 +71,7 @@ $cyberfive() { cyber(5); };
 print(cyberfive());
 ```
 
-`$` 会修改外部变量，但若参数和外部变量重名，则只会修改参数。
+`$` 可以修改外部变量，但若参数和外部变量重名，则只会修改参数。
 
 ```code
 he = 1 | 2 | 6 | 7;
@@ -84,7 +84,7 @@ print(he);
 print(rang);
 ```
 
-由于某些限制，直接与**Saint He**对话时只能招聘单行的 `$`。
+由于某些限制，直接与 **Saint He** 对话时只能招聘单行的 `$`。
 
 结合起来，就可以得到一份 **Cyber Code**：
 
