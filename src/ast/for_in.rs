@@ -15,9 +15,7 @@ impl ForInAST {
 
 impl AST for ForInAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
-        let value = self.value.eval(env);
-
-        let value = value?;
+        let value = self.value.eval(env)?;
         let mut first = true;
 
         env.enter();

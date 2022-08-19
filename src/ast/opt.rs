@@ -37,11 +37,8 @@ impl AST for VarRefAssignAST {
         let mut var = env.get_var(&self.var_name)
             .ok_or(format!("Variable {} not found", self.var_name))?
             .clone();
-        let indexs = self.indexs.eval(env);
-        let value = self.value.eval(env);
-
-        let indexs = indexs?;
-        let value = value?;
+        let indexs = self.indexs.eval(env)?;
+        let value = self.value.eval(env)?;
 
         if value.value.is_empty() {
             return Err(format!("Cannot assign empty value to variable {}", self.var_name));

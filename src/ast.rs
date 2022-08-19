@@ -130,6 +130,9 @@ pub use opt::*;
 mod func;
 pub use func::*;
 
+mod if_eq;
+pub use if_eq::*;
+
 mod for_in;
 pub use for_in::*;
 

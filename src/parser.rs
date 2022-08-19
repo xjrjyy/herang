@@ -139,11 +139,9 @@ pub fn for_in_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = tuple((multispace0, tag("@")))(input)?;
 
     let (input, _) = tuple((multispace0, tag("(")))(input)?;
-
     let (input, var_name) = identifier(input)?;
     let (input, _) = tuple((multispace0, tag(":")))(input)?;
     let (input, value) = expr_ast(input)?;
-
     let (input, _) = tuple((multispace0, tag(")")))(input)?;
 
     let (input, _) = tuple((multispace0, tag("{")))(input)?;
@@ -152,12 +150,29 @@ pub fn for_in_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     Ok((input, Box::new(ForInAST::new(var_name, value, body))))
 }
 
+// ?=(a, b) {}
+pub fn if_eq_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+    let (input, _) = tuple((multispace0, tag("?=")))(input)?;
+
+    let (input, _) = tuple((multispace0, tag("(")))(input)?;
+    let (input, left) = expr_ast(input)?;
+    let (input, _) = tuple((multispace0, tag(",")))(input)?;
+    let (input, right) = expr_ast(input)?;
+    let (input, _) = tuple((multispace0, tag(")")))(input)?;
+
+    let (input, _) = tuple((multispace0, tag("{")))(input)?;
+    let (input, body) = block_ast(input)?;
+    let (input, _) = tuple((multispace0, tag("}")))(input)?;
+    Ok((input, Box::new(IfEqAST::new(left, right, body))))
+}
+
 pub fn statement_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = multispace0(input)?;
 
     let (input, statement) = alt((
         expr_ast,
         func_def_ast,
+        if_eq_ast,
         for_in_ast,
     ))(input)?;
     let (input, _) = tuple((multispace0, tag(";")))(input)?;

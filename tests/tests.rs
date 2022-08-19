@@ -114,6 +114,46 @@ fn test_power_con() {
 }
 
 #[test]
+fn test_if_eq() {
+    let mut env = herang::HeEnv::new();
+    init_env(&mut env).unwrap();
+
+    let input = concat!(
+        "a = 1 | 2;",
+        "b = 1 | 2;",
+        "c = 2 | 1;",
+    );
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?=(a, b) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?=(a, c) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![0]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?=(a, 1 | 2) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?=(a, 2 | 1) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![0]);
+}
+
+#[test]
 fn test_for_in() {
     let mut env = herang::HeEnv::new();
     init_env(&mut env).unwrap();
