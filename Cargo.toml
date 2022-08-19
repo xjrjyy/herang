@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 nom = "7"
 dyn-clone = "1.0"
+clap = "3.2.17"
