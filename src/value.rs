@@ -35,3 +35,9 @@ impl Default for Value {
         Self { value: vec![] }
     }
 }
+
+impl Into<bool> for Value {
+    fn into(self) -> bool {
+        !self.value.is_empty() && self.value.iter().all(|&v| v != 0)
+    }
+}

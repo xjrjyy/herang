@@ -152,18 +152,16 @@ pub fn for_in_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 
 // ?=(a, b) {}
 pub fn if_eq_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    let (input, _) = tuple((multispace0, tag("?=")))(input)?;
+    let (input, _) = tuple((multispace0, tag("?")))(input)?;
 
     let (input, _) = tuple((multispace0, tag("(")))(input)?;
-    let (input, left) = expr_ast(input)?;
-    let (input, _) = tuple((multispace0, tag(",")))(input)?;
-    let (input, right) = expr_ast(input)?;
+    let (input, value) = expr_ast(input)?;
     let (input, _) = tuple((multispace0, tag(")")))(input)?;
 
     let (input, _) = tuple((multispace0, tag("{")))(input)?;
     let (input, body) = block_ast(input)?;
     let (input, _) = tuple((multispace0, tag("}")))(input)?;
-    Ok((input, Box::new(IfEqAST::new(left, right, body))))
+    Ok((input, Box::new(IfEqAST::new(value, body))))
 }
 
 pub fn statement_ast(input: &str) -> IResult<&str, Box<dyn AST>> {

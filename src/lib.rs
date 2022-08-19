@@ -17,7 +17,7 @@ pub fn eval(input: &str, env: &mut HeEnv) -> HeResult {
     }
     let ast = ast.unwrap();
     if !ast.0.trim().is_empty() {
-        println!("Cannot parse \"{}\"", ast.0.trim());
+        return Err(format!("Cannot parse \"{}\"", ast.0.trim()));
     }
     // println!("input\"{}\"", ast.0);
     let ast = ast.1;
