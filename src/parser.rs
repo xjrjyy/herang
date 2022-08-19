@@ -161,7 +161,7 @@ pub fn if_eq_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = tuple((multispace0, tag("{")))(input)?;
     let (input, body) = block_ast(input)?;
     let (input, _) = tuple((multispace0, tag("}")))(input)?;
-    Ok((input, Box::new(IfEqAST::new(value, body))))
+    Ok((input, Box::new(IfAST::new(value, body))))
 }
 
 pub fn statement_ast(input: &str) -> IResult<&str, Box<dyn AST>> {

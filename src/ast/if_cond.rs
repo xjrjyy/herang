@@ -1,18 +1,18 @@
 use super::*;
 
 #[derive(Debug, Clone)]
-pub struct IfEqAST {
+pub struct IfAST {
     value: Box<dyn AST>,
     body: Box<dyn AST>,
 }
 
-impl IfEqAST {
+impl IfAST {
     pub fn new(value: Box<dyn AST>, body: Box<dyn AST>) -> Self {
-        IfEqAST { value, body }
+        IfAST { value, body }
     }
 }
 
-impl AST for IfEqAST {
+impl AST for IfAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         let value = self.value.eval(env)?;
         if value.into() {
