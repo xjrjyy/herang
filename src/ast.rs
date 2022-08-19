@@ -29,29 +29,89 @@ impl Func for UserFunc {
         if args.len() != self.args_name.len() {
             return Err(format!("Wrong number of arguments: expected {}, got {}", self.args_name.len(), args.len()));
         }
-        let mut tmp_env = env.clone();
-        for (i, arg) in args.iter().enumerate() {
-            tmp_env.vars.insert(self.args_name[i].clone(), arg.clone());
+        env.enter();
+        for (arg, name) in args.iter().zip(self.args_name.iter()) {
+            env.set_var_last(name.clone(), arg.clone())?;
         }
-        let result = self.body.eval(&mut tmp_env);
-        for (key, value) in tmp_env.vars.iter() {
-            if !self.args_name.contains(key) {
-                env.vars.insert(key.clone(), value.clone());
-            }
-        }
+        let result = self.body.eval(env);
+        env.leave();
         result
+    }
+}
+
+
+#[derive(Debug, Clone)]
+struct HeEnvLayer {
+    vars: HashMap<String, Value>,
+    funcs: HashMap<String, Box<dyn Func>>,
+}
+
+impl HeEnvLayer {
+    pub fn new() -> Self {
+        Self {
+            vars: HashMap::new(),
+            funcs: HashMap::new(),
+        }
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct HeEnv {
-    pub vars: HashMap<String, Value>,
-    pub funcs: HashMap<String, Box<dyn Func>>,
+    layers: Vec<HeEnvLayer>,
 }
 
 impl HeEnv {
     pub fn new() -> Self {
-        HeEnv { vars: HashMap::new(), funcs: HashMap::new() }
+        HeEnv { layers: vec![HeEnvLayer::new()] }
+    }
+
+    pub fn get_var(&self, name: &str) -> Option<Value> {
+        for layer in self.layers.iter().rev() {
+            if let Some(value) = layer.vars.get(name) {
+                return Some(value.clone());
+            }
+        }
+        None
+    }
+
+    pub fn set_var(&mut self, name: String, value: Value) -> HeResult {
+        for layer in self.layers.iter_mut().rev() {
+            if layer.vars.contains_key(&name) {
+                layer.vars.insert(name, value.clone());
+                return Ok(value);
+            }
+        }
+        self.set_var_last(name, value)
+    }
+
+    pub fn set_var_last(&mut self, name: String, value: Value) -> HeResult {
+        self.layers.last_mut().unwrap().vars.insert(name, value.clone());
+        Ok(value)
+    }
+
+    pub fn get_func(&self, name: &str) -> Option<Box<dyn Func>> {
+        for layer in self.layers.iter().rev() {
+            if let Some(func) = layer.funcs.get(name) {
+                return Some(func.clone());
+            }
+        }
+        None
+    }
+
+    pub fn set_func(&mut self, name: String, func: Box<dyn Func>) -> HeResult {
+        if self.layers.last().unwrap().funcs.contains_key(&name) {
+            return Err(format!("Function {} already defined", name));
+        }
+        self.layers.last_mut().unwrap().funcs.insert(name, func);
+        Ok(Value::new(vec![0]))
+    }
+
+    pub fn enter(&mut self) {
+        self.layers.push(HeEnvLayer::new());
+    }
+
+    pub fn leave(&mut self) {
+        self.layers.pop();
     }
 }
 

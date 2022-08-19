@@ -3,7 +3,7 @@ use herang::{init_env, eval};
 #[test]
 fn test_assign() {
     let mut env = herang::HeEnv::new();
-    init_env(&mut env);
+    init_env(&mut env).unwrap();
     let result = eval("a = 1 | 2;", &mut env);
     assert_eq!(result.unwrap().value, vec![1, 2]);
     let result = eval("b = 1 | 1 | 4 | 5 | 1 | 4;", &mut env);
@@ -16,7 +16,7 @@ fn test_assign() {
 fn test_ref_assign() {
     {
         let mut env = herang::HeEnv::new();
-        init_env(&mut env);
+        init_env(&mut env).unwrap();
         let result = eval("a = 1 | 2 | 3 | 4 | 5;", &mut env);
         assert!(result.is_ok());
         let result = eval("a[a] = 1 | 2;", &mut env);
@@ -24,7 +24,7 @@ fn test_ref_assign() {
     }
     {
         let mut env = herang::HeEnv::new();
-        init_env(&mut env);
+        init_env(&mut env).unwrap();
         let result = eval("a = 4 | 2;", &mut env);
         assert_eq!(result.unwrap().value, vec![4, 2]);
         let result = eval("a[0] = 4 | 2;", &mut env);
@@ -35,7 +35,7 @@ fn test_ref_assign() {
 #[test]
 fn test_cyber() {
     let mut env = herang::HeEnv::new();
-    init_env(&mut env);
+    init_env(&mut env).unwrap();
     let result = eval("a = cyber(5);", &mut env);
     assert!(result.unwrap().value == vec![0, 0, 0, 0, 0]);
 }
@@ -44,7 +44,7 @@ fn test_cyber() {
 fn test_func() {
     {
         let mut env = herang::HeEnv::new();
-        init_env(&mut env);
+        init_env(&mut env).unwrap();
 
         let result = eval("$cyberfive() { cyber(5); };", &mut env);
         assert!(result.is_ok());
@@ -54,7 +54,7 @@ fn test_func() {
     }
     {
         let mut env = herang::HeEnv::new();
-        init_env(&mut env);
+        init_env(&mut env).unwrap();
 
         let result = eval("he = 1 | 2 | 6 | 7;", &mut env);
         assert!(result.is_ok());
@@ -74,12 +74,29 @@ fn test_func() {
         let result = eval("rang;", &mut env);
         assert_eq!(result.unwrap().value, vec![52, 57, 58, 65]);
     }
+    {
+        let mut env = herang::HeEnv::new();
+        init_env(&mut env).unwrap();
+
+        let input = concat!(
+            "$A(a) {",
+            "    $B(b) {",
+            "        b | 3;",
+            "    };",
+            "    B(a) | 2;",
+            "};",
+        );
+        let result = eval(input, &mut env);
+        assert!(result.is_ok());
+        let result = eval("A(0 | 1);", &mut env);
+        assert_eq!(result.unwrap().value, vec![0, 1, 3, 2]);
+    }
 }
 
 #[test]
 fn test_power_con() {
     let mut env = herang::HeEnv::new();
-    init_env(&mut env);
+    init_env(&mut env).unwrap();
 
     let result = eval("forceCon = cyber(68);", &mut env);
     assert!(result.is_ok());

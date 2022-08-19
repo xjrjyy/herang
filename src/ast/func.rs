@@ -16,11 +16,7 @@ impl FuncDefAST {
 impl AST for FuncDefAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         let func = UserFunc::new(self.args.clone(), self.body.clone());
-        if env.funcs.contains_key(&self.name) {
-            return Err(format!("Function {} already defined", self.name));
-        }
-        env.funcs.insert(self.name.clone(), Box::new(func));
-        Ok(Value::new(vec![0]))
+        env.set_func(self.name.clone(), Box::new(func))
     }
 }
 
@@ -38,7 +34,7 @@ impl FuncCallAST {
 
 impl AST for FuncCallAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
-        let func = env.funcs.get(&self.name)
+        let func = env.get_func(&self.name)
             .ok_or(format!("Function {} not found", self.name))?
             .clone();
         let args: Result<Vec<Value>, String> = self.args.iter()

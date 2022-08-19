@@ -30,7 +30,7 @@ impl VarAST {
 
 impl AST for VarAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
-        env.vars.get(&self.var_name)
+        env.get_var(&self.var_name)
             .ok_or(format!("Variable {} not found", self.var_name))
             .map(|v| v.clone())
     }

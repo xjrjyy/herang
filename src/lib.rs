@@ -24,8 +24,9 @@ pub fn eval(input: &str, env: &mut HeEnv) -> HeResult {
     ast.eval(env)
 }
 
-pub fn init_env(env: &mut HeEnv) {
-    env.funcs.insert("print".to_string(), Box::new(PrintFunc));
-    env.funcs.insert("sprint".to_string(), Box::new(SPrintFunc));
-    env.funcs.insert("cyber".to_string(), Box::new(CyberFunc));
+pub fn init_env(env: &mut HeEnv) -> HeResult {
+    env.set_func("print".to_string(), Box::new(PrintFunc))?;
+    env.set_func("sprint".to_string(), Box::new(SPrintFunc))?;
+    env.set_func("cyber".to_string(), Box::new(CyberFunc))?;
+    Ok(Value::new(vec![0]))
 }

@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .get_matches();
 
     let mut env = herang::HeEnv::new();
-    herang::init_env(&mut env);
+    herang::init_env(&mut env)?;
     if let Some(source_file) = matches.value_of("path") {
         let source = std::fs::read_to_string(source_file)?;
         herang::eval(&source, &mut env)?;

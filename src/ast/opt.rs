@@ -15,8 +15,7 @@ impl VarAssignAST {
 impl AST for VarAssignAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         let value = self.value.eval(env)?;
-        env.vars.insert(self.var_name.clone(), value.clone());
-        Ok(value.clone())
+        env.set_var(self.var_name.clone(), value.clone())
     }
 }
 
@@ -35,7 +34,7 @@ impl VarRefAssignAST {
 
 impl AST for VarRefAssignAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
-        let mut var = env.vars.get(&self.var_name)
+        let mut var = env.get_var(&self.var_name)
             .ok_or(format!("Variable {} not found", self.var_name))?
             .clone();
         let indexs = self.indexs.eval(env);
@@ -65,7 +64,6 @@ impl AST for VarRefAssignAST {
                 var.value[index] = value.value[i % value.value.len()];
             }
         }
-        env.vars.insert(self.var_name.clone(), var.clone());
-        Ok(var)
+        env.set_var(self.var_name.clone(), var.clone())
     }
 }
