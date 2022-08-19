@@ -7,7 +7,7 @@ use clap::App;
 
 fn main() -> Result<(), Box<dyn Error>> {
     let matches = App::new("HeRang")
-        .version("0.1.0")
+        .version("0.2.0")
         .author("jrjyy")
         .about("Cyber Language")
         .args_from_usage("-p, --path=[FILE] 'Target file you want to execute'")
