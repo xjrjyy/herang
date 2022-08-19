@@ -112,3 +112,21 @@ fn test_power_con() {
     assert_eq!(result.value.len(), 68);
     assert!(result.value.iter().filter(|&v| v == &10).count() == 9);
 }
+
+#[test]
+fn test_for_in() {
+    let mut env = herang::HeEnv::new();
+    init_env(&mut env).unwrap();
+
+    let input = concat!(
+        "result = 0;",
+        "@(i: 1 | 3 | 4) {",
+        "    result = result | i;",
+        "};",
+    );
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![0, 1, 3, 4]);
+}

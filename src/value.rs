@@ -29,3 +29,9 @@ impl fmt::Display for Value {
         Ok(())
     }
 }
+
+impl Default for Value {
+    fn default() -> Self {
+        Self { value: vec![] }
+    }
+}

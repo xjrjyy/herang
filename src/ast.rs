@@ -103,7 +103,7 @@ impl HeEnv {
             return Err(format!("Function {} already defined", name));
         }
         self.layers.last_mut().unwrap().funcs.insert(name, func);
-        Ok(Value::new(vec![0]))
+        Ok(Value::default())
     }
 
     pub fn enter(&mut self) {
@@ -130,6 +130,9 @@ pub use opt::*;
 mod func;
 pub use func::*;
 
+mod for_in;
+pub use for_in::*;
+
 #[derive(Debug, Clone)]
 pub struct BlockAST {
     statements: Vec<Box<dyn AST>>,
@@ -144,7 +147,7 @@ impl BlockAST {
 impl AST for BlockAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         if self.statements.is_empty() {
-            Ok(Value::new(vec![0]))
+            Ok(Value::default())
         } else {
             for i in 0..(self.statements.len()-1) {
                 self.statements[i].eval(env)?;
