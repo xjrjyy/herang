@@ -4,7 +4,7 @@ use nom::{
     IResult,
     bytes::complete::tag,
     character::complete::{u8, multispace0, alpha1},
-    sequence::tuple,
+    sequence::{tuple, pair},
     branch::alt,
     multi::{separated_list0, separated_list1, many0},
     combinator::map,
@@ -35,16 +35,12 @@ fn var_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 fn func_call_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, func_name) = identifier(input)?;
 
-    let (input, _) = tuple((multispace0, tag("(")))(input)?;
+    let (input, _) = pair(multispace0, tag("("))(input)?;
     let (input, args) = separated_list0(
-        tuple((
-            multispace0,
-            tag(","),
-            multispace0,
-        )),
+        tuple((multispace0, tag(","), multispace0)),
         expr_ast,
     )(input)?;
-    let (input, _) = tuple((multispace0, tag(")")))(input)?;
+    let (input, _) = pair(multispace0, tag(")"))(input)?;
 
     Ok((input, Box::new(FuncCallAST::new(func_name, args)) as Box<dyn AST>))
 }
@@ -55,7 +51,7 @@ pub fn value_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     if input.starts_with("(") {
         let (input, _) = tag("(")(input)?;
         let (input, expr) = expr_ast(input)?;
-        let (input, _) = tuple((multispace0, tag(")")))(input)?;
+        let (input, _) = pair(multispace0, tag(")"))(input)?;
         Ok((input, expr))
     } else {
         let (input, ast) = alt((
@@ -94,7 +90,7 @@ pub fn var_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = multispace0(input)?;
 
     let (input, var_name) = identifier(input)?;
-    let (input, _) = tuple((multispace0, tag("="), multispace0))(input)?;
+    let (input, _) = pair(multispace0, tag("="))(input)?;
 
     let (input, value) = expr_ast(input)?;
     Ok((input, Box::new(VarAssignAST::new(var_name, value))))
@@ -104,10 +100,10 @@ pub fn var_ref_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = multispace0(input)?;
 
     let (input, var_name) = identifier(input)?;
-    let (input, _) = tuple((multispace0, tag("[")))(input)?;
+    let (input, _) = pair(multispace0, tag("["))(input)?;
     let (input, index) = expr_ast(input)?;
-    let (input, _) = tuple((multispace0, tag("]")))(input)?;
-    let (input, _) = tuple((multispace0, tag("="), multispace0))(input)?;
+    let (input, _) = pair(multispace0, tag("]"))(input)?;
+    let (input, _) = pair(multispace0, tag("="))(input)?;
 
     let (input, value) = expr_ast(input)?;
     Ok((input, Box::new(VarRefAssignAST::new(var_name, index, value))))
@@ -120,47 +116,43 @@ fn func_def_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 
     let (input, _) = tuple((multispace0, tag("("), multispace0))(input)?;
     let (input, args) = separated_list0(
-        tuple((
-            multispace0,
-            tag(","),
-            multispace0,
-        )),
+        tuple((multispace0, tag(","), multispace0)),
         identifier,
     )(input)?;
-    let (input, _) = tuple((multispace0, tag(")")))(input)?;
+    let (input, _) = pair(multispace0, tag(")"))(input)?;
 
-    let (input, _) = tuple((multispace0, tag("{")))(input)?;
+    let (input, _) = pair(multispace0, tag("{"))(input)?;
     let (input, body) = block_ast(input)?;
-    let (input, _) = tuple((multispace0, tag("}")))(input)?;
+    let (input, _) = pair(multispace0, tag("}"))(input)?;
     Ok((input, Box::new(FuncDefAST::new(func_name, args, body))))
 }
 
 pub fn for_in_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    let (input, _) = tuple((multispace0, tag("@")))(input)?;
+    let (input, _) = pair(multispace0, tag("@"))(input)?;
 
-    let (input, _) = tuple((multispace0, tag("(")))(input)?;
+    let (input, _) = pair(multispace0, tag("("))(input)?;
     let (input, var_name) = identifier(input)?;
-    let (input, _) = tuple((multispace0, tag(":")))(input)?;
+    let (input, _) = pair(multispace0, tag(":"))(input)?;
     let (input, value) = expr_ast(input)?;
-    let (input, _) = tuple((multispace0, tag(")")))(input)?;
+    let (input, _) = pair(multispace0, tag(")"))(input)?;
 
-    let (input, _) = tuple((multispace0, tag("{")))(input)?;
+    let (input, _) = pair(multispace0, tag("{"))(input)?;
     let (input, body) = block_ast(input)?;
-    let (input, _) = tuple((multispace0, tag("}")))(input)?;
+    let (input, _) = pair(multispace0, tag("}"))(input)?;
     Ok((input, Box::new(ForInAST::new(var_name, value, body))))
 }
 
 // ?=(a, b) {}
 pub fn if_eq_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    let (input, _) = tuple((multispace0, tag("?")))(input)?;
+    let (input, _) = pair(multispace0, tag("?"))(input)?;
 
-    let (input, _) = tuple((multispace0, tag("(")))(input)?;
+    let (input, _) = pair(multispace0, tag("("))(input)?;
     let (input, value) = expr_ast(input)?;
-    let (input, _) = tuple((multispace0, tag(")")))(input)?;
+    let (input, _) = pair(multispace0, tag(")"))(input)?;
 
-    let (input, _) = tuple((multispace0, tag("{")))(input)?;
+    let (input, _) = pair(multispace0, tag("{"))(input)?;
     let (input, body) = block_ast(input)?;
-    let (input, _) = tuple((multispace0, tag("}")))(input)?;
+    let (input, _) = pair(multispace0, tag("}"))(input)?;
     Ok((input, Box::new(IfAST::new(value, body))))
 }
 
@@ -173,7 +165,7 @@ pub fn statement_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
         if_eq_ast,
         for_in_ast,
     ))(input)?;
-    let (input, _) = tuple((multispace0, tag(";")))(input)?;
+    let (input, _) = pair(multispace0, tag(";"))(input)?;
     Ok((input, statement))
 }
 
