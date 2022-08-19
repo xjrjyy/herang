@@ -1,5 +1,4 @@
 extern crate nom;
-use std::vec;
 
 use nom::{
     IResult,
@@ -19,7 +18,7 @@ pub fn value(input: &str) -> IResult<&str, Value> {
     Ok((input, Value::new(vec![value])))
 }
 
-pub fn var_name(input: &str) -> IResult<&str, String> {
+pub fn identifier(input: &str) -> IResult<&str, String> {
     map(alpha1, |s: &str| s.to_string())(input)
 }
 
@@ -30,11 +29,11 @@ fn value_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 }
 
 fn var_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    map(var_name, |v| Box::new(VarAST::new(v)) as Box<dyn AST>)(input)
+    map(identifier, |v| Box::new(VarAST::new(v)) as Box<dyn AST>)(input)
 }
 
 fn func_call_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    let (input, func_name) = var_name(input)?;
+    let (input, func_name) = identifier(input)?;
 
     let (input, _) = tuple((multispace0, tag("(")))(input)?;
     let (input, args) = separated_list0(
@@ -94,7 +93,7 @@ pub fn expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 pub fn var_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = multispace0(input)?;
 
-    let (input, var_name) = var_name(input)?;
+    let (input, var_name) = identifier(input)?;
     let (input, _) = tuple((multispace0, tag("="), multispace0))(input)?;
 
     let (input, value) = expr_ast(input)?;
@@ -104,7 +103,7 @@ pub fn var_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 pub fn var_ref_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = multispace0(input)?;
 
-    let (input, var_name) = var_name(input)?;
+    let (input, var_name) = identifier(input)?;
     let (input, _) = tuple((multispace0, tag("[")))(input)?;
     let (input, index) = expr_ast(input)?;
     let (input, _) = tuple((multispace0, tag("]")))(input)?;
@@ -117,7 +116,7 @@ pub fn var_ref_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 fn func_def_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = tag("$")(input)?;
     
-    let (input, func_name) = var_name(input)?;
+    let (input, func_name) = identifier(input)?;
 
     let (input, _) = tuple((multispace0, tag("("), multispace0))(input)?;
     let (input, args) = separated_list0(
@@ -126,7 +125,7 @@ fn func_def_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
             tag(","),
             multispace0,
         )),
-        var_name
+        identifier,
     )(input)?;
     let (input, _) = tuple((multispace0, tag(")")))(input)?;
 

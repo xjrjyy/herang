@@ -6,11 +6,39 @@ pub struct PrintFunc;
 
 impl Func for PrintFunc {
     fn call(&self, args: &[Value], _env: &mut HeEnv) -> HeResult {
-        if args.len() != 1 {
-            return Err(format!("Wrong number of arguments: expected 1, got {}", args.len()));
+        if args.is_empty() {
+            return Err("print requires at least one argument".to_string());
         }
-        println!("{}", args[0]);
-        Ok(args[0].clone())
+        let message = args.iter()
+            .map(|arg| format!("{}", arg))
+            .collect::<Vec<String>>()
+            .join(" ");
+        println!("{}", message);
+        Ok(args.last().unwrap().clone())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct SPrintFunc;
+
+impl SPrintFunc {
+    fn sprint(value: &Value) -> String {
+        let value = value.value.clone();
+        String::from_utf8(value).unwrap()
+    }
+}
+
+impl Func for SPrintFunc {
+    fn call(&self, args: &[Value], _env: &mut HeEnv) -> HeResult {
+        if args.is_empty() {
+            return Err("print requires at least one argument".to_string());
+        }
+        let message = args.iter()
+            .map(SPrintFunc::sprint)
+            .collect::<Vec<String>>()
+            .join(" ");
+        println!("{}", message);
+        Ok(args.last().unwrap().clone())
     }
 }
 
