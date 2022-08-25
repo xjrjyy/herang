@@ -67,14 +67,44 @@ impl OrExprAST {
 
 impl AST for OrExprAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
-        let left = self.left.eval(env);
-        let right = self.right.eval(env);
-
-        let left = left?;
-        let right = right?;
+        let left = self.left.eval(env)?;
+        let right = self.right.eval(env)?;
 
         let mut value = left.value.clone();
         value.extend(right.value.clone());
         Ok(Value::new(value))
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum EqualityExprType {
+    Eq,
+    Ne,
+}
+
+#[derive(Debug, Clone)]
+pub struct EqualityExprAST {
+    left: Box<dyn AST>,
+    right: Box<dyn AST>,
+    expr_type: EqualityExprType,
+}
+
+impl EqualityExprAST {
+    pub fn new(left: Box<dyn AST>, right: Box<dyn AST>, expr_type: EqualityExprType) -> Self {
+        EqualityExprAST { left, right, expr_type }
+    }
+}
+
+impl AST for EqualityExprAST {
+    fn eval(&self, env: &mut HeEnv) -> HeResult {
+        let left = self.left.eval(env)?;
+        let right = self.right.eval(env)?;
+
+        let result = match self.expr_type {
+            EqualityExprType::Eq => left == right,
+            EqualityExprType::Ne => left != right,
+        };
+
+        Ok(result.into())
     }
 }

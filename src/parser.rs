@@ -4,7 +4,7 @@ use nom::{
     IResult,
     bytes::complete::tag,
     character::complete::{u8, multispace0, alpha1},
-    sequence::{tuple, pair},
+    sequence::{tuple, pair, preceded},
     branch::alt,
     multi::{separated_list0, separated_list1, many0},
     combinator::map,
@@ -78,11 +78,36 @@ fn or_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     Ok((input, ast))
 }
 
+pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+    let (input, left) = or_expr_ast(input)?;
+
+    let result = preceded(
+        multispace0,
+        alt((tag("=="), tag("!=")))
+    )(input);
+
+    if result.is_err() {
+        return Ok((input, left));
+    }
+
+    let (input, sign) = result?;
+
+    let expr_type = match sign {
+        "==" => Some(EqualityExprType::Eq),
+        "!=" => Some(EqualityExprType::Ne),
+        _ => None,
+    }.unwrap();
+
+    let (input, right) = or_expr_ast(input)?;
+
+    Ok((input, Box::new(EqualityExprAST::new(left, right, expr_type))))
+}
+
 pub fn expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     return alt((
         var_ref_assign_ast,
         var_assign_ast,
-        or_expr_ast,
+        equality_expr_ast,
     ))(input);
 }
 

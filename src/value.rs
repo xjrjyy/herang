@@ -41,3 +41,15 @@ impl Into<bool> for Value {
         !self.value.is_empty() && self.value.iter().all(|&v| v != 0)
     }
 }
+
+impl From<bool> for Value {
+    fn from(value: bool) -> Self {
+        Self::new(
+            if value {
+                vec![1]
+            } else {
+                vec![0]
+            }
+        )
+    }
+}
