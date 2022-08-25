@@ -56,3 +56,24 @@ impl Func for CyberFunc {
         Ok(Value::new(value))
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct TrimFunc;
+
+impl Func for TrimFunc {
+    fn call(&self, args: &[Value], _env: &mut HeEnv) -> HeResult {
+        if args.len() != 1 {
+            return Err(format!("Wrong number of arguments: expected 1, got {}", args.len()));
+        }
+
+        let f = |value: Vec<u8>| value
+            .into_iter()
+            .rev()
+            .skip_while(|&x| x == 0)
+            .collect::<Vec<u8>>();
+
+        let value = args[0].value.clone();
+        let value: Vec<u8> = f(f(value));
+        Ok(Value::new(value))
+    }
+}
