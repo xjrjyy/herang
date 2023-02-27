@@ -113,3 +113,25 @@ impl Func for LenFunc {
         Ok(Value::new(vec![args[0].value.len() as u8]))
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct SliceFunc;
+
+impl Func for SliceFunc {
+    fn call(&self, args: &[Value], _env: &mut HeEnv) -> HeResult {
+        if args.len() != 3 {
+            return Err(format!("len requires 1 argument(got {})", args.len()));
+        }
+
+        let value = &args[0].value;
+        let start: usize = args[1].value.iter().fold(0, |acc, &v| acc + v).into();
+        let end: usize = args[2].value.iter().fold(0, |acc, &v| acc + v).into();
+        if start > end {
+            return Ok(Value::new(vec![]));
+        }
+        if start <= 0 || end >= value.len() + 1 {
+            return Err(format!("out of range(got [{}, {}])", start, end));
+        }
+        Ok(Value::new((&value[start - 1..end]).to_vec()))
+    }
+}
