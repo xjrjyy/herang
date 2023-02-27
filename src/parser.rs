@@ -93,7 +93,7 @@ pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 
     let result = preceded(
         multispace0,
-        alt((tag("=="), tag("!=")))
+        alt((tag("=="), tag("!="), tag("<"), tag(">"), tag("<="), tag(">=")))
     )(input);
 
     if result.is_err() {
@@ -105,6 +105,10 @@ pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let expr_type = match sign {
         "==" => Some(EqualityExprType::Eq),
         "!=" => Some(EqualityExprType::Ne),
+        "<" => Some(EqualityExprType::Lt),
+        ">" => Some(EqualityExprType::Gt),
+        "<=" => Some(EqualityExprType::Le),
+        ">=" => Some(EqualityExprType::Ge),
         _ => None,
     }.unwrap();
 

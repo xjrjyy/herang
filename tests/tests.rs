@@ -152,6 +152,34 @@ fn test_if_cond() {
     assert!(result.is_ok());
     let result = eval("result;", &mut env);
     assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?(null < a) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?(a < b) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?(a < c) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("result = 0; ?(b < c) { result = 1; };", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
 }
 
 #[test]

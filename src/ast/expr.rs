@@ -80,6 +80,10 @@ impl AST for OrExprAST {
 pub enum EqualityExprType {
     Eq,
     Ne,
+    Lt,
+    Gt,
+    Le,
+    Ge,
 }
 
 #[derive(Debug, Clone)]
@@ -103,6 +107,10 @@ impl AST for EqualityExprAST {
         let result = match self.expr_type {
             EqualityExprType::Eq => left == right,
             EqualityExprType::Ne => left != right,
+            EqualityExprType::Lt => left < right,
+            EqualityExprType::Gt => left > right,
+            EqualityExprType::Le => left <= right,
+            EqualityExprType::Ge => left >= right,
         };
 
         Ok(result.into())
