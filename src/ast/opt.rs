@@ -1,6 +1,23 @@
 use super::*;
 
 #[derive(Debug, Clone)]
+pub struct VarDefAST {
+    var_name: String,
+}
+
+impl VarDefAST {
+    pub fn new(var_name: String,) -> Self {
+        VarDefAST { var_name }
+    }
+}
+
+impl AST for VarDefAST {
+    fn eval(&self, env: &mut HeEnv) -> HeResult {
+        env.set_var_last(self.var_name.clone(), Value::default())
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct VarAssignAST {
     var_name: String,
     value: Box<dyn AST>,

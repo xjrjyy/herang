@@ -3,7 +3,7 @@ extern crate nom;
 use nom::{
     IResult,
     bytes::complete::tag,
-    character::complete::{u8, multispace0, alpha1},
+    character::complete::{u8, multispace0, multispace1, alpha1},
     sequence::{tuple, pair, preceded},
     branch::alt,
     multi::{separated_list0, separated_list1, many0},
@@ -148,6 +148,16 @@ pub fn var_ref_assign_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     Ok((input, Box::new(VarRefAssignAST::new(var_name, index, value))))
 }
 
+fn var_def_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+    let (input, _) = multispace0(input)?;
+
+    let (input, _) = tag("def")(input)?;
+    let (input, _) = multispace1(input)?;
+    
+    let (input, var_name) = identifier(input)?;
+    Ok((input, Box::new(VarDefAST::new(var_name))))
+}
+
 fn func_def_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = tag("$")(input)?;
     
@@ -199,6 +209,7 @@ pub fn statement_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let (input, _) = multispace0(input)?;
 
     let (input, statement) = alt((
+        var_def_ast,
         expr_ast,
         func_def_ast,
         if_eq_ast,

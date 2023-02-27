@@ -199,3 +199,27 @@ fn test_for_in() {
     let result = eval("result;", &mut env);
     assert_eq!(result.unwrap().value, vec![0, 1, 3, 4]);
 }
+
+#[test]
+fn test_var_def() {
+    let mut env = herang::HeEnv::new();
+    init_env(&mut env).unwrap();
+
+    let input = concat!(
+        "result = 1;",
+    );
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("$A() { def result; result = 2; }; A();", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![1]);
+
+    let result = eval(input, &mut env);
+    assert!(result.is_ok());
+    let result = eval("$B() { result = 3; }; B();", &mut env);
+    assert!(result.is_ok());
+    let result = eval("result;", &mut env);
+    assert_eq!(result.unwrap().value, vec![3]);
+}
