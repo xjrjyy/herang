@@ -30,6 +30,7 @@ pub fn init_env(env: &mut HeEnv) -> HeResult {
     env.set_func("sprint".to_string(), Box::new(SPrintFunc))?;
     env.set_func("cyber".to_string(), Box::new(CyberFunc))?;
     env.set_func("trim".to_string(), Box::new(TrimFunc))?;
+    env.set_func("len".to_string(), Box::new(LenFunc))?;
     Ok(Value::default())
 }
 

@@ -100,3 +100,16 @@ impl Func for TrimFunc {
         Ok(Value::new(value))
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct LenFunc;
+
+impl Func for LenFunc {
+    fn call(&self, args: &[Value], _env: &mut HeEnv) -> HeResult {
+        if args.len() != 1 {
+            return Err(format!("len requires 1 argument(got {})", args.len()));
+        }
+
+        Ok(Value::new(vec![args[0].value.len() as u8]))
+    }
+}
