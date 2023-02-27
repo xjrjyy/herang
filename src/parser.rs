@@ -93,7 +93,7 @@ pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 
     let result = preceded(
         multispace0,
-        alt((tag("=="), tag("!="), tag("<"), tag(">"), tag("<="), tag(">=")))
+        alt((tag("=="), tag("!="), tag("<="), tag(">="), tag("<"), tag(">")))
     )(input);
 
     if result.is_err() {
