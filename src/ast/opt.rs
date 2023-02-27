@@ -64,3 +64,40 @@ impl AST for VarRefAssignAST {
         env.set_var(self.var_name.clone(), var.clone())
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct VarRefAST {
+    var_name: String,
+    indexs: Box<dyn AST>,
+}
+
+impl VarRefAST {
+    pub fn new(var_name: String, indexs: Box<dyn AST>) -> Self {
+        VarRefAST { var_name, indexs }
+    }
+}
+
+impl AST for VarRefAST {
+    fn eval(&self, env: &mut HeEnv) -> HeResult {
+        let var = &env.get_var(&self.var_name)
+            .ok_or(format!("Variable {} not found", self.var_name))?;
+        let indexs = self.indexs.eval(env)?;
+
+        if indexs.value.iter().any(|&v| v == 0) {
+            if indexs.value.len() != 1 {
+                return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
+            }
+            Ok(var.clone())
+        } else {
+            let mut tmp_var = Value::default();
+            for i in 0..indexs.value.len() {
+                let index = indexs.value[i] as usize - 1;
+                if index >= var.value.len() {
+                    return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
+                }
+                tmp_var.value.push(var.value[index])
+            }
+            Ok(tmp_var)
+        }
+    }
+}

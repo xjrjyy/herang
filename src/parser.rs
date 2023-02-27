@@ -28,6 +28,15 @@ fn value_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     map(value, |v| Box::new(ValueAST::new(v)) as Box<dyn AST>)(input)
 }
 
+fn var_ref_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+    let (input, var_name) = identifier(input)?;
+    let (input, _) = pair(multispace0, tag("["))(input)?;
+    let (input, index) = expr_ast(input)?;
+    let (input, _) = pair(multispace0, tag("]"))(input)?;
+
+    Ok((input, Box::new(VarRefAST::new(var_name, index))))
+}
+
 fn var_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     map(identifier, |v| Box::new(VarAST::new(v)) as Box<dyn AST>)(input)
 }
@@ -57,6 +66,7 @@ pub fn value_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
         let (input, ast) = alt((
             func_call_ast,
             value_ast,
+            var_ref_ast,
             var_ast,
         ))(input)?;
         Ok((input, Box::new(ExprAST::new(ast))))
