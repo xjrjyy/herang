@@ -2,12 +2,12 @@ extern crate nom;
 
 use nom::{
     IResult,
-    bytes::complete::tag,
-    character::complete::{u8, multispace0, multispace1, alpha1},
+    bytes::complete::{tag, take_while1},
+    character::complete::{u8, multispace0, multispace1},
     sequence::{tuple, pair, preceded},
     branch::alt,
     multi::{separated_list0, separated_list1, many0},
-    combinator::map,
+    combinator::map, AsChar,
 };
 
 pub use crate::value::*;
@@ -18,8 +18,12 @@ pub fn value(input: &str) -> IResult<&str, Value> {
     Ok((input, Value::new(vec![value])))
 }
 
+pub fn is_alpha_or_underscore(c: char) -> bool {
+    c.is_alpha() || c == '_'
+}
+
 pub fn identifier(input: &str) -> IResult<&str, String> {
-    map(alpha1, |s: &str| s.to_string())(input)
+    map(take_while1(is_alpha_or_underscore), |s: &str| s.to_string())(input)
 }
 
 // ast
