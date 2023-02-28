@@ -123,9 +123,9 @@ pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
 
 pub fn expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     return alt((
-        equality_expr_ast,
         var_assign_ast,
         var_ref_assign_ast,
+        equality_expr_ast,
     ))(input);
 }
 
