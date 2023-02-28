@@ -129,7 +129,7 @@ impl Func for SliceFunc {
         if start >= end {
             return Ok(Value::new(vec![]));
         }
-        if end >= value.len() {
+        if end > value.len() {
             return Err(format!("out of range(got [{}, {}])", start, end));
         }
         Ok(Value::new((&value[start..end]).to_vec()))
