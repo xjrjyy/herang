@@ -61,24 +61,17 @@ impl AST for VarRefAssignAST {
             return Err(format!("Cannot assign empty value to variable {}", self.var_name));
         }
 
-        if indexs.value.iter().any(|&v| v == 0) {
-            if indexs.value.len() != 1 {
-                return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
-            }
-            var = value.clone();
-        } else {
-            if indexs.value.len() < value.value.len() {
-                return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
-            }
-            for i in 0..indexs.value.len() {
-                let index = indexs.value[i] as usize - 1;
-                if index >= var.value.len() {
-                    return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
-                }
-                var.value[index] = value.value[i % value.value.len()];
-            }
+        if indexs.value.len() < value.value.len() {
+            return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
         }
-        env.set_var(self.var_name.clone(), var.clone())
+        for i in 0..indexs.value.len() {
+            let index = indexs.value[i] as usize;
+            if index >= var.value.len() {
+                return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
+            }
+            var.value[index] = value.value[i % value.value.len()];
+        }
+    env.set_var(self.var_name.clone(), var.clone())
     }
 }
 
@@ -100,21 +93,14 @@ impl AST for VarRefAST {
             .ok_or(format!("Variable {} not found", self.var_name))?;
         let indexs = self.indexs.eval(env)?;
 
-        if indexs.value.iter().any(|&v| v == 0) {
-            if indexs.value.len() != 1 {
+        let mut tmp_var = Value::default();
+        for i in 0..indexs.value.len() {
+            let index = indexs.value[i] as usize;
+            if index >= var.value.len() {
                 return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
             }
-            Ok(var.clone())
-        } else {
-            let mut tmp_var = Value::default();
-            for i in 0..indexs.value.len() {
-                let index = indexs.value[i] as usize - 1;
-                if index >= var.value.len() {
-                    return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
-                }
-                tmp_var.value.push(var.value[index])
-            }
-            Ok(tmp_var)
+            tmp_var.value.push(var.value[index])
         }
+        Ok(tmp_var)
     }
 }

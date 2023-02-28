@@ -17,7 +17,7 @@ fn test_ref_assign() {
     {
         let mut env = herang::HeEnv::new();
         init_env(&mut env).unwrap();
-        let result = eval("a = 1 | 2 | 3 | 4 | 5;", &mut env);
+        let result = eval("a = 0 | 1 | 2 | 3 | 4;", &mut env);
         assert!(result.is_ok());
         let result = eval("a[a] = 1 | 2;", &mut env);
         assert_eq!(result.unwrap().value, vec![1, 2, 1, 2, 1]);
@@ -26,8 +26,6 @@ fn test_ref_assign() {
         let mut env = herang::HeEnv::new();
         init_env(&mut env).unwrap();
         let result = eval("a = 4 | 2;", &mut env);
-        assert_eq!(result.unwrap().value, vec![4, 2]);
-        let result = eval("a[0] = 4 | 2;", &mut env);
         assert_eq!(result.unwrap().value, vec![4, 2]);
     }
 }

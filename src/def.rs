@@ -126,12 +126,12 @@ impl Func for SliceFunc {
         let value = &args[0].value;
         let start: usize = args[1].value.iter().fold(0, |acc, &v| acc + v).into();
         let end: usize = args[2].value.iter().fold(0, |acc, &v| acc + v).into();
-        if start > end {
+        if start >= end {
             return Ok(Value::new(vec![]));
         }
-        if start <= 0 || end >= value.len() + 1 {
+        if end >= value.len() {
             return Err(format!("out of range(got [{}, {}])", start, end));
         }
-        Ok(Value::new((&value[start - 1..end]).to_vec()))
+        Ok(Value::new((&value[start..end]).to_vec()))
     }
 }
