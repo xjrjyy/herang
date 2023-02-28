@@ -97,7 +97,7 @@ impl AST for VarRefAST {
         for i in 0..indexs.value.len() {
             let index = indexs.value[i] as usize;
             if index >= var.value.len() {
-                return Err(format!("Cannot assign to variable {} with indexs {}", self.var_name, indexs));
+                return Err(format!("Cannot get value from variable {} with indexs {}", self.var_name, indexs));
             }
             tmp_var.value.push(var.value[index])
         }
