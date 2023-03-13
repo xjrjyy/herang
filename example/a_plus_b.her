@@ -1,14 +1,10 @@
 null = cyber(0);
 inf = 127;
 
-$plus(x, y) { len(cyber(x) | cyber(y)); };
-
-$prev(x) { plus(x, 255); };
-$next(x) { plus(x, 1); };
 $front(s) { s[0]; };
-$back(s) { s[prev(len(s))]; };
+$back(s) { s[len(s) - 1]; };
 $pop_front(s) { slice(s, 1, len(s)); };
-$pop_back(s) { slice(s, 0, prev(len(s))); };
+$pop_back(s) { slice(s, 0, len(s) - 1); };
 
 $iota(n) {
     def result;
@@ -32,9 +28,6 @@ $reverse(s) {
     s;
 };
 
-minus_table = 0 | 255 | pop_back(reverse(iota(255)));
-$minus(x, y) { plus(x, minus_table[y]); };
-
 $read_number() {
     def x; x = trim(readline());
     def table; table = fill(128, inf);
@@ -50,20 +43,20 @@ $read_number() {
 $print_number(x) {
     def result;
     ?(x == 0) { result = 48; };
-    @(i : x) { result = plus(i, 48) | result; };
+    @(i : x) { result = (i + 48) | result; };
     sprint(result);
 };
 
 $int_plus(s, t) {
-    ?(len(s)<len(t)) {
+    ?(len(s) < len(t)) {
         def o; o = s; s = t; t = o;
     };
     def result; result = s | 0;
     $c_plus(x, y) {
-        def result; result = plus(x[0], y) | x[1];
+        def result; result = (x[0] + y) | x[1];
         ?(result[0] >= 10) {
-            result[0] = minus(result[0], 10);
-            result[1] = plus(result[1], 1);
+            result[0] = result[0] - 10;
+            result[1] = result[1] + 1;
         };
         result;
     };
