@@ -77,6 +77,41 @@ impl AST for OrExprAST {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ArithmeticExprType {
+    Add,
+    Sub,
+    Mul,
+}
+
+#[derive(Debug, Clone)]
+pub struct ArithmeticExprAST {
+    left: Box<dyn AST>,
+    right: Box<dyn AST>,
+    expr_type: ArithmeticExprType,
+}
+
+impl ArithmeticExprAST {
+    pub fn new(left: Box<dyn AST>, right: Box<dyn AST>, expr_type: ArithmeticExprType) -> Self {
+        ArithmeticExprAST { left, right, expr_type }
+    }
+}
+
+impl AST for ArithmeticExprAST {
+    fn eval(&self, env: &mut HeEnv) -> HeResult {
+        let left = self.left.eval(env)?;
+        let right = self.right.eval(env)?;
+
+        let result = match self.expr_type {
+            ArithmeticExprType::Add => left + right,
+            ArithmeticExprType::Sub => left - right,
+            ArithmeticExprType::Mul => left * right,
+        };
+
+        Ok(result.into())
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum EqualityExprType {
     Eq,
     Ne,

@@ -1,4 +1,5 @@
 use std::fmt;
+use std::ops::{Add, Sub, Mul};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Value {
@@ -50,6 +51,42 @@ impl From<bool> for Value {
             } else {
                 vec![0]
             }
+        )
+    }
+}
+
+impl Add for Value {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::new(
+            self.value.iter().zip(rhs.value.iter())
+                .map(|(x, y)| x + y)
+                .collect()
+        )
+    }
+}
+
+impl Sub for Value {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::new(
+            self.value.iter().zip(rhs.value.iter())
+                .map(|(x, y)| x - y)
+                .collect()
+        )
+    }
+}
+
+impl Mul for Value {
+    type Output = Self;
+
+    fn mul(self, rhs: Self) -> Self::Output {
+        Self::new(
+            self.value.iter().zip(rhs.value.iter())
+                .map(|(x, y)| x * y)
+                .collect()
         )
     }
 }

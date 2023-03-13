@@ -31,6 +31,20 @@ fn test_ref_assign() {
 }
 
 #[test]
+fn test_arithmetic_expr() {
+    {
+        let mut env = herang::HeEnv::new();
+        init_env(&mut env).unwrap();
+        let result = eval("a = 4 | 2 + 0 | 1;", &mut env);
+        assert_eq!(result.unwrap().value, vec![4, 3]);
+        let result = eval("a = 4 | 2 - 2 | 1;", &mut env);
+        assert_eq!(result.unwrap().value, vec![2, 1]);
+        let result = eval("a = 4 | 2 * 2 | 3;", &mut env);
+        assert_eq!(result.unwrap().value, vec![8, 6]);
+    }
+}
+
+#[test]
 fn test_cyber() {
     let mut env = herang::HeEnv::new();
     init_env(&mut env).unwrap();
