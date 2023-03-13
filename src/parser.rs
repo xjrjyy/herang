@@ -3,7 +3,7 @@ extern crate nom;
 use nom::{
     IResult,
     bytes::complete::{tag, take_while1},
-    character::complete::{u8, multispace0, multispace1},
+    character::complete::{u32, multispace0, multispace1},
     sequence::{tuple, pair, preceded},
     branch::alt,
     multi::{separated_list0, separated_list1, many0},
@@ -14,7 +14,7 @@ pub use crate::value::*;
 pub use crate::ast::*;
 
 pub fn value(input: &str) -> IResult<&str, Value> {
-    let (input, value) = u8(input)?;
+    let (input, value) = u32(input)?;
     Ok((input, Value::new(vec![value])))
 }
 

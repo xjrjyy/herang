@@ -34,7 +34,3 @@ pub fn init_env(env: &mut HeEnv) -> HeResult {
     env.set_func("slice".to_string(), Box::new(SliceFunc))?;
     Ok(Value::default())
 }
-
-pub fn to_he_u8(s: &str) -> Value {
-    Value::new(s.as_bytes().into())
-}

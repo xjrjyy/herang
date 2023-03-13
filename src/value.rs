@@ -3,11 +3,11 @@ use std::ops::{Add, Sub, Mul};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Value {
-    pub value: Vec<u8>,
+    pub value: Vec<u32>,
 }
 
 impl Value {
-    pub fn new(value: Vec<u8>) -> Self {
+    pub fn new(value: Vec<u32>) -> Self {
         Self { value }
     }
 }

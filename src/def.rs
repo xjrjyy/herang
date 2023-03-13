@@ -1,6 +1,8 @@
 pub use crate::value::*;
 pub use crate::ast::*;
 
+use std::convert::TryFrom;
+
 #[derive(Debug, Clone)]
 pub struct ReadLineFunc;
 
@@ -16,7 +18,12 @@ impl Func for ReadLineFunc {
             .read_line(&mut result)
             .map_err(|e| e.to_string())?;
 
-        Ok(Value::new(result.as_bytes().to_vec()))
+        Ok(Value::new(
+            result.as_bytes()
+            .into_iter()
+            .map(|&x| x as u32)
+            .collect()
+        ))
     }
 }
 
@@ -45,7 +52,7 @@ pub struct SPrintFunc;
 impl SPrintFunc {
     fn sprint(value: &Value) -> String {
         let value = value.value.clone();
-        String::from_utf8(value).unwrap()
+        String::from_utf8(value.iter().map(|&x| x as u8).collect()).unwrap()
     }
 }
 
@@ -91,11 +98,15 @@ impl Func for TrimFunc {
         }
 
         let value = args[0].value.clone();
-        let value = String::from_utf8(value)
+        let value = String::from_utf8(
+                value.iter().map(|&x| x as u8).collect()
+            )
             .map_err(|e| e.to_string())?
             .trim()
             .as_bytes()
-            .to_vec();
+            .into_iter()
+            .map(|&x| x as u32)
+            .collect();
         
         Ok(Value::new(value))
     }
@@ -110,7 +121,7 @@ impl Func for LenFunc {
             return Err(format!("len requires 1 argument(got {})", args.len()));
         }
 
-        Ok(Value::new(vec![args[0].value.len() as u8]))
+        Ok(Value::new(vec![args[0].value.len() as u32]))
     }
 }
 
@@ -124,8 +135,12 @@ impl Func for SliceFunc {
         }
 
         let value = &args[0].value;
-        let start: usize = args[1].value.iter().fold(0, |acc, &v| acc + v).into();
-        let end: usize = args[2].value.iter().fold(0, |acc, &v| acc + v).into();
+        let start = usize::try_from(
+            args[1].value.iter().fold(0u32, |acc, &v| acc + v)
+        ).unwrap();
+        let end = usize::try_from(
+            args[2].value.iter().fold(0u32, |acc, &v| acc + v)
+        ).unwrap();
         if start >= end {
             return Ok(Value::new(vec![]));
         }
