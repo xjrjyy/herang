@@ -6,7 +6,7 @@ extern crate clap;
 use clap::Parser;
 
 #[derive(Parser, Debug)]
-#[command(author = "jrjyy", version = "0.4.0", about = "Cyber Language", long_about = None)]
+#[command(author = "jrjyy", version = "0.5.0", about = "Cyber Language", long_about = None)]
 struct Args {
    #[arg(short, long)]
    path: Option<String>,
