@@ -42,7 +42,7 @@ $read_number() {
 };
 $print_number(x) {
     def result;
-    ?(x == 0) { result = 48; };
+    ?(x == null) { result = 48; };
     @(i : x) { result = (i + 48) | result; };
     sprint(result);
 };
