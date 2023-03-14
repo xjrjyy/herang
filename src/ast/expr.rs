@@ -15,6 +15,23 @@ impl AST for ValueAST {
     fn eval(&self, _env: &mut HeEnv) -> HeResult {
         Ok(self.value.clone())
     }
+
+    fn gen_code(&self, _env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        let mut value = "".to_string();
+        if !self.value.value.is_empty() {
+            let mut first = true;
+            for v in self.value.value.iter() {
+                if !first {
+                    value += ", ";
+                } else {
+                    first = false;
+                }
+                value += v.to_string().as_str();
+            }
+        }
+        code.push_line(format!("u8({{{}}})", value).as_str());
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -34,6 +51,13 @@ impl AST for VarAST {
             .ok_or(format!("Variable {} not found", self.var_name))
             .map(|v| v.clone())
     }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        env.get_var(&self.var_name)
+            .ok_or(format!("Variable {} not found", self.var_name))?;
+        code.push_line(self.var_name.as_str());
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -50,6 +74,10 @@ impl ExprAST {
 impl AST for ExprAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         self.expr.eval(env)
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        self.expr.gen_code(env, code)
     }
 }
 
@@ -73,6 +101,23 @@ impl AST for OrExprAST {
         let mut value = left.value.clone();
         value.extend(right.value.clone());
         Ok(Value::new(value))
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        code.push_line("(");
+
+        code.enter();
+        self.left.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(" | ");
+
+        code.enter();
+        self.right.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(")");
+        Ok(())
     }
 }
 
@@ -108,6 +153,28 @@ impl AST for ArithmeticExprAST {
         };
 
         Ok(result.into())
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        let sign = match self.expr_type {
+            ArithmeticExprType::Add => "+",
+            ArithmeticExprType::Sub => "-",
+            ArithmeticExprType::Mul => "*",
+        };
+        code.push_line("(");
+
+        code.enter();
+        self.left.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(sign);
+
+        code.enter();
+        self.right.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(")");
+        Ok(())
     }
 }
 
@@ -149,5 +216,30 @@ impl AST for EqualityExprAST {
         };
 
         Ok(result.into())
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        let sign = match self.expr_type {
+            EqualityExprType::Eq => "==",
+            EqualityExprType::Ne => "!=",
+            EqualityExprType::Lt => "<",
+            EqualityExprType::Gt => ">",
+            EqualityExprType::Le => "<=",
+            EqualityExprType::Ge => ">=",
+        };
+        code.push_line("(");
+
+        code.enter();
+        self.left.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(sign);
+
+        code.enter();
+        self.right.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(")");
+        Ok(())
     }
 }

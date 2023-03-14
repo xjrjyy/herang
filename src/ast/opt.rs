@@ -6,7 +6,7 @@ pub struct VarDefAST {
 }
 
 impl VarDefAST {
-    pub fn new(var_name: String,) -> Self {
+    pub fn new(var_name: String) -> Self {
         VarDefAST { var_name }
     }
 }
@@ -14,6 +14,12 @@ impl VarDefAST {
 impl AST for VarDefAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         env.set_var_last(self.var_name.clone(), Value::default())
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        env.set_var_last(self.var_name.clone(), Value::default())?;
+        code.push_var_def(&self.var_name);
+        Ok(())
     }
 }
 
@@ -33,6 +39,20 @@ impl AST for VarAssignAST {
     fn eval(&self, env: &mut HeEnv) -> HeResult {
         let value = self.value.eval(env)?;
         env.set_var(self.var_name.clone(), value.clone())
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        if env.get_var(&self.var_name).is_none() {
+            code.push_var_def(&self.var_name);
+        }
+        env.set_var(self.var_name.clone(), Value::default())?;
+
+        code.push_line(format!("({} = ", self.var_name).as_str());
+        code.enter();
+        self.value.gen_code(env, code)?;
+        code.leave();
+        code.push_line(")");
+        Ok(())
     }
 }
 
@@ -71,7 +91,27 @@ impl AST for VarRefAssignAST {
             }
             var.value[index] = value.value[i % value.value.len()];
         }
-    env.set_var(self.var_name.clone(), var.clone())
+        env.set_var(self.var_name.clone(), var.clone())
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        env.get_var(&self.var_name)
+            .ok_or(format!("Variable {} not found", self.var_name))?;
+        
+        code.push_line(format!("({}.set(", self.var_name).as_str());
+
+        code.enter();
+        self.indexs.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line(",");
+
+        code.enter();
+        self.value.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line("))");
+        Ok(())
     }
 }
 
@@ -102,5 +142,19 @@ impl AST for VarRefAST {
             tmp_var.value.push(var.value[index])
         }
         Ok(tmp_var)
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        env.get_var(&self.var_name)
+            .ok_or(format!("Variable {} not found", self.var_name))?;
+        
+        code.push_line(format!("{}[", self.var_name).as_str());
+
+        code.enter();
+        self.indexs.gen_code(env, code)?;
+        code.leave();
+
+        code.push_line("]");
+        Ok(())
     }
 }

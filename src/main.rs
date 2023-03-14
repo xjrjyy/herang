@@ -17,7 +17,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     herang::init_env(&mut env)?;
     if let Some(source_file) = matches.value_of("path") {
         let source = std::fs::read_to_string(source_file)?;
-        herang::eval(&source, &mut env)?;
+        let result = herang::gen_code(&source, &mut env);
+        println!("{}", match result {
+            Ok(code) => code,
+            Err(msg) => msg,
+        });
+        // herang::eval(&source, &mut env)?;
     } else {
         loop {
             print!("herang> ");

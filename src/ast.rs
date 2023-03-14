@@ -3,6 +3,7 @@ use std::fmt;
 use dyn_clone::{clone_trait_object, DynClone};
 
 pub use crate::value::*;
+pub use crate::cpp_code::*;
 
 pub type HeResult = Result<Value, String>;
 
@@ -117,6 +118,7 @@ impl HeEnv {
 
 pub trait AST: fmt::Debug + DynClone {
     fn eval(&self, env: &mut HeEnv) -> HeResult;
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String>;
 }
 
 clone_trait_object!(AST);
@@ -157,5 +159,49 @@ impl AST for BlockAST {
             }
             self.statements.last().unwrap().eval(env)
         }
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        code.push_line("[&]() {");
+        code.enter();
+
+        if self.statements.is_empty() {
+            code.push_line("return u8();");
+        } else {
+            for i in 0..(self.statements.len()-1) {
+                self.statements[i].gen_code(env, code)?;
+            }
+            code.push_line("return");
+            code.enter();
+            self.statements.last().unwrap().gen_code(env, code)?;
+            code.leave();
+        }
+
+        code.leave();
+        code.push_line("}();");
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct StatementAST {
+    statement: Box<dyn AST>,
+}
+
+impl StatementAST {
+    pub fn new(statement: Box<dyn AST>) -> Self {
+        StatementAST { statement }
+    }
+}
+
+impl AST for StatementAST {
+    fn eval(&self, env: &mut HeEnv) -> HeResult {
+        self.statement.eval(env)
+    }
+
+    fn gen_code(&self, env: &mut HeEnv, code: &mut CppCode) -> Result<(), String> {
+        self.statement.gen_code(env, code)?;
+        code.push_line(";");
+        Ok(())
     }
 }

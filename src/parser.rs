@@ -259,6 +259,7 @@ pub fn statement_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
         if_eq_ast,
         for_in_ast,
     ))(input)?;
+    let statement = Box::new(StatementAST::new(statement));
     let (input, _) = pair(multispace0, tag(";"))(input)?;
     Ok((input, statement))
 }
