@@ -1,0 +1,65 @@
+R=trim(readline());
+R=R|0;
+l=cyber(0);r=cyber(0);
+a=0;
+c=0;
+id=0;
+p=R;
+@(v:R)
+{
+	p[id]=id;
+	?((v>=48) + (v<=57) ==2)
+	{
+		a=a+1;
+	};
+	?((v<48) + (v>57) >=1)
+	{
+		?(a!=0)
+		{c=c+1;r=r|id;l=l|(id-a);};
+		a=0;
+	};
+	id=id+1;
+};
+$iota(n)
+{
+	def ID;
+	def A;
+	ID=0; 
+	@(k:cyber(n))
+	{
+		A=A|ID;
+		ID=ID+1;
+	};
+	A;
+};
+$trans(i){slice(R,l[i],r[i]);};
+@(i:iota(len(l)))
+{
+	sprint(trans(i));
+};
+$comp(a,b)
+{
+def c;
+?(len(a)==len(b)){c=a<b;};
+?(len(a)!=len(b)){c=len(a)<len(b);};
+c;
+};
+$sort()
+{
+def n;def tmp;
+n=len(l);
+	@(i:iota(n))
+	{
+		@(j:slice(iota(n),1,n))
+		{
+				?(comp(trans(p[j]),trans(p[j-1]))){tmp=p[j];p[j]=p[j-1];p[j-1]=tmp;};
+		};
+	};
+	0;
+};
+sort();
+@(i:iota(len(l)))
+{
+	sprint(trans(p[i]));
+};
+
