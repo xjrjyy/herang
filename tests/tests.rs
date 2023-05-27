@@ -1,6 +1,18 @@
 use herang::{init_env, eval};
 
 #[test]
+fn test_expr() {
+    let mut env = herang::HeEnv::new();
+    init_env(&mut env).unwrap();
+    let result = eval("a = 1 + 2;", &mut env);
+    assert_eq!(result.unwrap().value, vec![3]);
+    let result = eval("b = 3 | 2 + 5 | 5 * 5 | 1;", &mut env);
+    assert_eq!(result.unwrap().value, vec![28, 7]);
+    let result = eval("a = 1 + 2 + 4 / 3 * 3;", &mut env);
+    assert_eq!(result.unwrap().value, vec![6]);
+}
+
+#[test]
 fn test_assign() {
     let mut env = herang::HeEnv::new();
     init_env(&mut env).unwrap();
