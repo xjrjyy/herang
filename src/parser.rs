@@ -118,7 +118,6 @@ fn mul_div_expr_ast(input: &str) -> IResult<&str, (char,Box<dyn AST>)> {
 }
 
 fn plus_minus_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-// println!("UPSAD__________");
     let (input, mut expr) = separated_list1(
         tuple((multispace0, alt((tag("+"), tag("-"))), multispace0)),
         mul_div_expr_ast,
@@ -129,7 +128,6 @@ fn plus_minus_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     let mut ast=right_tuple.1;
     let mut expr_char = right_tuple.0;
     while let Some(right_tuple) = expr.pop() {
-        // println!("_______________{}  {}",expr_char,expr_char as u8);
         let expr_type = match expr_char {
             '+' => Some(ArithmeticExprType::Add),
             '-' => Some(ArithmeticExprType::Sub),
