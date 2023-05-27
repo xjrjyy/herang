@@ -126,6 +126,7 @@ pub enum ArithmeticExprType {
     Add,
     Sub,
     Mul,
+    Div,
 }
 
 #[derive(Debug, Clone)]
@@ -150,6 +151,7 @@ impl AST for ArithmeticExprAST {
             ArithmeticExprType::Add => left + right,
             ArithmeticExprType::Sub => left - right,
             ArithmeticExprType::Mul => left * right,
+            ArithmeticExprType::Div => left / right,
         };
 
         Ok(result.into())
@@ -160,6 +162,8 @@ impl AST for ArithmeticExprAST {
             ArithmeticExprType::Add => "+",
             ArithmeticExprType::Sub => "-",
             ArithmeticExprType::Mul => "*",
+            ArithmeticExprType::Div => "/",
+
         };
         code.push_line("(");
 
