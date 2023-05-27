@@ -77,7 +77,7 @@ pub fn value_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     }
 }
 
-fn or_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+fn or_expr_ast(input: &str) -> IResult<&str, (char,Box<dyn AST>)> {
     let (input, _) = multispace0(input)?;
 
     let (input, mut expr) = separated_list1(
@@ -89,51 +89,58 @@ fn or_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
     while let Some(right) = expr.pop() {
         ast = Box::new(OrExprAST::new(ast, right));
     }
-    Ok((input, ast))
+    let (awa,_)=multispace0(input)?;
+    Ok((input, (awa.chars().nth(0).unwrap(),ast)))
 }
 
-fn plus_minus_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    let (input, left) = or_expr_ast(input)?;
-
-    let result = preceded(
-        multispace0,
-        alt((tag("+"), tag("-")))
-    )(input);
-
-    if result.is_err() {
-        return Ok((input, left));
-    }
-
-    let (input, sign) = result?;
-
-    let expr_type = match sign {
-        "+" => Some(ArithmeticExprType::Add),
-        "-" => Some(ArithmeticExprType::Sub),
-        _ => None,
-    }.unwrap();
-
-    let (input, right) = or_expr_ast(input)?;
-
-    Ok((input, Box::new(ArithmeticExprAST::new(left, right, expr_type))))
-}
-
-fn mul_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+fn mul_div_expr_ast(input: &str) -> IResult<&str, (char,Box<dyn AST>)> {
     let (input, _) = multispace0(input)?;
 
     let (input, mut expr) = separated_list1(
-        tuple((multispace0, tag("*"), multispace0)),
-        plus_minus_expr_ast,
+        tuple((multispace0, alt((tag("*"), tag("/"))), multispace0)),
+        or_expr_ast,
     )(input)?;
     expr.reverse();
-    let mut ast = expr.pop().unwrap();
-    while let Some(right) = expr.pop() {
-        ast = Box::new(ArithmeticExprAST::new(ast, right, ArithmeticExprType::Mul));
+    let right_tuple=expr.pop().unwrap();
+    let mut ast=right_tuple.1;
+    let mut expr_char = right_tuple.0;
+    while let Some(right_tuple) = expr.pop() {
+        let expr_type = match expr_char {
+            '*' => Some(ArithmeticExprType::Mul),
+            '/' => Some(ArithmeticExprType::Div),
+            _ => None,
+        }.unwrap();
+        ast=Box::new(ArithmeticExprAST::new(ast, right_tuple.1, expr_type));
+        expr_char=right_tuple.0;
+    }
+    let (awa,_)=multispace0(input)?;
+    Ok((input, (awa.chars().nth(0).unwrap(),ast)))
+}
+
+fn plus_minus_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
+    let (input, mut expr) = separated_list1(
+        tuple((multispace0, alt((tag("+"), tag("-"))), multispace0)),
+        mul_div_expr_ast,
+    )(input)?;
+
+    expr.reverse();
+    let right_tuple=expr.pop().unwrap();
+    let mut ast=right_tuple.1;
+    let mut expr_char = right_tuple.0;
+    while let Some(right_tuple) = expr.pop() {
+        let expr_type = match expr_char {
+            '+' => Some(ArithmeticExprType::Add),
+            '-' => Some(ArithmeticExprType::Sub),
+            _ => None,
+        }.unwrap();
+        ast=Box::new(ArithmeticExprAST::new(ast, right_tuple.1, expr_type));
+        expr_char=right_tuple.0;
     }
     Ok((input, ast))
 }
 
 pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
-    let (input, left) = mul_expr_ast(input)?;
+    let (input, left) = plus_minus_expr_ast(input)?;
 
     let result = preceded(
         multispace0,
@@ -156,7 +163,7 @@ pub fn equality_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
         _ => None,
     }.unwrap();
 
-    let (input, right) = mul_expr_ast(input)?;
+    let (input, right) = plus_minus_expr_ast(input)?;
 
     Ok((input, Box::new(EqualityExprAST::new(left, right, expr_type))))
 }

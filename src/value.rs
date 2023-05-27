@@ -1,5 +1,5 @@
 use std::fmt;
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add, Sub, Mul, Div};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub struct Value {
@@ -86,6 +86,19 @@ impl Mul for Value {
         Self::new(
             self.value.iter().zip(rhs.value.iter())
                 .map(|(x, y)| x * y)
+                .collect()
+        )
+    }
+}
+
+impl Div for Value {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+
+        Self::new(
+            self.value.iter().zip(rhs.value.iter())
+                .map(|(x, y)| if *y != 0 {*x / *y} else { 0 })
                 .collect()
         )
     }

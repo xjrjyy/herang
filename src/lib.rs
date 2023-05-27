@@ -51,5 +51,6 @@ pub fn init_env(env: &mut HeEnv) -> HeResult {
     env.set_func("trim".to_string(), Box::new(TrimFunc))?;
     env.set_func("len".to_string(), Box::new(LenFunc))?;
     env.set_func("slice".to_string(), Box::new(SliceFunc))?;
+    env.set_func("time".to_string(),Box::new(TimeFunc))?;
     Ok(Value::default())
 }
