@@ -1,8 +1,30 @@
 pub use crate::value::*;
 pub use crate::ast::*;
+use std::time::{SystemTime,UNIX_EPOCH};
 
 use std::convert::TryFrom;
 
+#[derive(Debug, Clone)]
+pub struct TimeFunc;
+
+impl Func for TimeFunc {
+    fn call(&self, args: &[Value], _env: &mut HeEnv) -> HeResult {
+        if args.len() != 0 {
+            return Err(format!("time requires 0 argument(got {})", args.len()).to_string());
+        }
+        let mut tim:u64=0;
+        match SystemTime::now().duration_since(UNIX_EPOCH)
+        {
+            Ok(n) => tim=n.as_secs(),
+            Err(_) => println!("SystemTime before UNIX EPOCH , the function will return 0"),
+        }
+        let t1:u32=(tim/4294967296).try_into().unwrap();
+        let t2:u32=(tim%4294967296).try_into().unwrap();
+        Ok(Value::new(
+            vec![t1,t2]
+        ))
+    }
+}
 #[derive(Debug, Clone)]
 pub struct ReadLineFunc;
 
