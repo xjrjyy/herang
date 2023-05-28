@@ -8,7 +8,7 @@ fn test_expr() {
     assert_eq!(result.unwrap().value, vec![3]);
     let result = eval("b = 3 | 2 + 5 | 5 * 5 | 1;", &mut env);
     assert_eq!(result.unwrap().value, vec![28, 7]);
-    let result = eval("a = 1 + 2 + 4 / 3 * 3;", &mut env);
+    let result = eval("a = 1 + 2 + 4 / 3 * 3 + 1 / 0;", &mut env);
     assert_eq!(result.unwrap().value, vec![6]);
 }
 
