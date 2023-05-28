@@ -90,7 +90,10 @@ fn or_expr_ast(input: &str) -> IResult<&str, (char,Box<dyn AST>)> {
         ast = Box::new(OrExprAST::new(ast, right));
     }
     let (awa,_)=multispace0(input)?;
-    Ok((input, (awa.chars().nth(0).unwrap(),ast)))
+    Ok((input, (match awa.is_empty() {
+        true => '_',
+        false => awa.chars().nth(0).unwrap(),
+    },ast)))
 }
 
 fn mul_div_expr_ast(input: &str) -> IResult<&str, (char,Box<dyn AST>)> {
@@ -114,7 +117,10 @@ fn mul_div_expr_ast(input: &str) -> IResult<&str, (char,Box<dyn AST>)> {
         expr_char=right_tuple.0;
     }
     let (awa,_)=multispace0(input)?;
-    Ok((input, (awa.chars().nth(0).unwrap(),ast)))
+    Ok((input, (match awa.is_empty() {
+        true => '_',
+        false => awa.chars().nth(0).unwrap(),
+    },ast)))
 }
 
 fn plus_minus_expr_ast(input: &str) -> IResult<&str, Box<dyn AST>> {
